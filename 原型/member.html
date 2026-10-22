@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>邻里券 · 会员详情</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="index.html"><span></span>邻里券</a>
+    <nav class="nav">
+      <a href="index.html">发券</a>
+      <a class="on" href="all.html">会员</a>
+      <a href="sleepers.html">沉睡客</a>
+      <a href="records.html">发送记录</a>
+    </nav>
+    <div class="topbar-meta">
+      <span>统计日 <span data-stat-date>2026-10-20</span></span>
+      <span>王姐</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="toolbar">
+    <div>
+      <div class="ptitle">
+        <span id="mid">—</span>
+        <span class="tag" id="tag" style="vertical-align:3px;margin-left:6px">—</span>
+      </div>
+      <div class="psub">会员详情 · 统计日 <span data-stat-date>2026-10-20</span></div>
+    </div>
+    <div class="spacer"></div>
+    <a class="btn ghost" href="sleepers.html">沉睡客</a>
+    <a class="btn ghost" href="javascript:history.back()">返回</a>
+  </div>
+
+  <div class="card" style="margin-top:0">
+
+    <div class="banner ok" id="banner">
+      <div class="mark" id="mark">✓</div>
+      <div>
+        <div id="verdict" style="font-weight:600">—</div>
+        <div id="verdict-sub" style="font-size:13px;opacity:.85;margin-top:2px">—</div>
+      </div>
+    </div>
+
+    <div class="evi" id="evi"></div>
+
+    <div class="summary-line" id="reason"></div>
+
+    <div class="row" style="margin-top:20px">
+      <span class="muted">发送条件：沉睡客 ＋ 有手机号 ＋ 近 7 日没来过</span>
+      <div class="spacer"></div>
+      <a class="btn ghost" href="confirm.html">发送名单</a>
+    </div>
+  </div>
+
+</div>
+
+<script src="data.js"></script>
+<script>
+function rule(r) {
+  if (r.c7 > r.c30) return { send: false, label: "数据对不上",
+    reason: "近 7 日买了 " + r.c7 + " 次，近 30 日却只有 " + r.c30 + " 次。7 天包含在 30 天里，这两个数不可能同时成立，所以先不发，等数据修好。" };
+  if (!r.e) return { send: false, label: "从未购买",
+    reason: "没有购买记录，不属于沉睡客。沉睡客的前提是以前至少买过 1 次。" };
+  if (r.c30 >= 2) return { send: false, label: "常购客",
+    reason: "近 30 日买了 " + r.c30 + " 次，是常购客。常购客只在首页展示，本期不发券。" };
+  if (r.c7 >= 1) return { send: false, label: "本周到店客",
+    reason: "近 7 日买过 " + r.c7 + " 次。券是请人回来的，不发给这周已经来过的人。" };
+  if (r.c30 === 1) return { send: false, label: "低频未到店",
+    reason: "近 30 日只买过 1 次，不属于三个标签中的任何一个。本期不发送。" };
+  if (!r.p) return { send: false, label: "无手机号",
+    reason: "是沉睡客，但档案里没有手机号，短信发不出去。她算在 420 里，但不进名单。" };
+  return { send: true, label: "沉睡客",
+    reason: "以前买过，近 30 日一次没买，这周也没来，有手机号，所以今天发给她。" };
+}
+
+var q = new URLSearchParams(location.search).get("id");
+var r = (window.MEMBERS || []).filter(function (m) { return m.id === q; })[0];
+
+if (!r) {
+  document.getElementById("mid").textContent = q || "未指定会员";
+  document.getElementById("verdict").textContent = "没有找到这个会员号";
+  document.getElementById("verdict-sub").textContent = "从名单里点「原因」进来";
+  document.getElementById("banner").className = "banner no";
+} else {
+  var res = rule(r);
+  document.getElementById("mid").textContent = r.id;
+  document.getElementById("tag").textContent = res.label;
+  document.getElementById("reason").textContent = res.reason;
+
+  var banner = document.getElementById("banner");
+  if (res.send) {
+    document.getElementById("mark").textContent = "✓";
+    document.getElementById("verdict").textContent = "在发送名单里，今天会收到券";
+    document.getElementById("verdict-sub").textContent = "四条证据都成立";
+  } else {
+    banner.className = "banner no";
+    document.getElementById("mark").textContent = "·";
+    document.getElementById("verdict").textContent = "不在发送名单里，今天不会收到券";
+    document.getElementById("verdict-sub").textContent = "有一条不成立，原因见下";
+  }
+
+  function row(k, v, tagText, ok) {
+    return '<div class="evi-row"><div class="k">' + k + '</div><div class="v">' + v +
+      '</div><div><span class="tag ' + (ok ? 'ok' : 'warn') + '">' + tagText + '</span></div></div>';
+  }
+
+  var html = "";
+  html += row("以前买过", r.e ? "是" : "否", r.e ? "有购买记录" : "没有购买记录", r.e);
+  html += row("近 30 日购买次数", r.c30 + " 次",
+    r.c30 >= 2 ? "常购客" : (r.c30 === 1 ? "低频" : "沉睡客"), r.c30 === 0);
+  html += row("近 7 日购买次数", r.c7 + " 次",
+    r.c7 >= 1 ? "本周到店客" : "这周没来", r.c7 === 0);
+  html += row("手机号", r.p || "空", r.p ? "能发短信" : "发不出去", !!r.p);
+  if (r.c7 > r.c30) {
+    html += row("近 7 日 ≤ 近 30 日", "不成立", "数据对不上", false);
+  }
+  document.getElementById("evi").innerHTML = html;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>邻里券 · 发券</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="index.html"><span></span>邻里券</a>
+    <nav class="nav">
+      <a class="on" href="index.html">发券</a>
+      <a href="all.html">会员</a>
+      <a href="sleepers.html">沉睡客</a>
+      <a href="records.html">发送记录</a>
+    </nav>
+    <div class="topbar-meta">
+      <span>统计日 <span data-stat-date>2026-10-20</span></span>
+      <span>王姐</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="toolbar">
+    <div>
+      <div class="ptitle">本周发券</div>
+      <div class="psub">满 99 减 20 · 短信 · 统计日 <span data-stat-date>2026-10-20</span></div>
+    </div>
+    <div class="spacer"></div>
+    <a class="btn ghost" href="all.html">全部会员</a>
+    <a class="btn" href="confirm.html">查看发送名单</a>
+  </div>
+
+  <div class="kpis" style="margin-top:0">
+    <a class="kpi" href="all.html">
+      <div class="kpi-label">会员总数</div>
+      <div class="kpi-num"><span id="n-total">1,000</span><small>人</small></div>
+      <div class="kpi-note">全部会员记录</div>
+    </a>
+    <a class="kpi" href="sleepers.html">
+      <div class="kpi-label">沉睡客</div>
+      <div class="kpi-num"><span id="n-sleep">420</span><small>人</small></div>
+      <div class="kpi-note">历史买过，近 30 日 0 次</div>
+    </a>
+    <a class="kpi hl" href="confirm.html">
+      <div class="kpi-label">今天将要发送</div>
+      <div class="kpi-num"><span id="n-send">334</span><small>人</small></div>
+      <div class="kpi-note">能发、该发的人</div>
+    </a>
+  </div>
+
+  <div class="rule">
+    <b>发送条件</b>
+    <span>沉睡客</span><span style="color:#7ba79c">＋</span>
+    <span>有手机号</span><span style="color:#7ba79c">＋</span>
+    <span>近 7 日没来过</span><span style="color:#7ba79c">＝</span>
+    <b><span id="n-send2">334</span> 人</b>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h2>本期不发券</h2>
+    <div class="mini">
+      <div>常购客 <b id="n-freq">300</b> 人 · 近 30 日买过 2 次及以上</div>
+      <div>本周到店客 <b id="n-visit">398</b> 人 · 近 7 日买过</div>
+      <div>无手机号 <b id="n-np">56</b> 人 · 算在 420 里，不进名单</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>标签定义</h2>
+    <div class="evi">
+      <div class="evi-row">
+        <div class="k">常购客</div>
+        <div class="v">近 30 日购买 ≥ 2 次</div>
+        <div class="why">只在首页展示，本期不发券</div>
+      </div>
+      <div class="evi-row">
+        <div class="k">沉睡客</div>
+        <div class="v">以前买过 ≥ 1 次，近 30 日 0 次</div>
+        <div class="why">本期要请回来的人</div>
+      </div>
+      <div class="evi-row">
+        <div class="k">本周到店客</div>
+        <div class="v">近 7 日购买 ≥ 1 次</div>
+        <div class="why">这周已经来过，不发券</div>
+      </div>
+    </div>
+    <ul class="rulelist" style="margin-top:14px">
+      <li>购买按<b>已支付订单</b>计，取消的不算。</li>
+      <li>所有次数从<b>统计日 <span data-stat-date>2026-10-20</span></b> 往前推。</li>
+      <li>近 7 日次数大于近 30 日次数的记录，视为<b>数据对不上</b>，不进名单。</li>
+    </ul>
+  </div>
+
+</div>
+
+<script src="data.js"></script>
+<script>
+var M = window.MEMBERS || [];
+var sleepers = M.filter(function (m) { return m.e && m.c30 === 0; });
+var senders = sleepers.filter(function (m) { return m.p && m.c7 === 0; });
+var fmt = function (n) { return n.toLocaleString("en-US"); };
+document.getElementById("n-total").textContent = fmt(M.length);
+document.getElementById("n-sleep").textContent = sleepers.length;
+document.getElementById("n-send").textContent = senders.length;
+document.getElementById("n-send2").textContent = senders.length;
+document.getElementById("n-freq").textContent = M.filter(function (m) { return m.c30 >= 2; }).length;
+document.getElementById("n-visit").textContent = M.filter(function (m) { return m.c7 >= 1; }).length;
+document.getElementById("n-np").textContent = sleepers.filter(function (m) { return !m.p; }).length;
+</script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>邻里券 · 会员</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="index.html"><span></span>邻里券</a>
+    <nav class="nav">
+      <a href="index.html">发券</a>
+      <a class="on" href="all.html">会员</a>
+      <a href="sleepers.html">沉睡客</a>
+      <a href="records.html">发送记录</a>
+    </nav>
+    <div class="topbar-meta">
+      <span>统计日 <span data-stat-date>2026-10-20</span></span>
+      <span>王姐</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="toolbar">
+    <div>
+      <div class="ptitle">全部会员</div>
+      <div class="psub">共 1,000 人 · 本期发券 334 人</div>
+    </div>
+    <div class="spacer"></div>
+    <a class="btn ghost" href="sleepers.html">只看沉睡客</a>
+    <a class="btn" href="confirm.html">发送名单</a>
+  </div>
+
+  <div class="card" style="margin-top:0">
+
+    <div class="bar" style="margin-bottom:12px">
+      <input class="search" id="q" type="search" placeholder="搜会员号或手机号">
+      <span class="muted">显示 <b id="shown">1000</b> 人</span>
+    </div>
+
+    <div class="seg" id="seg">
+      <button class="on" data-f="all">全部 <span id="n-all">1000</span></button>
+      <button data-f="send">今天发券 <span id="n-send">334</span></button>
+      <button data-f="freq">常购客 <span id="n-freq">300</span></button>
+      <button data-f="sleep">沉睡客 <span id="n-sleep">380</span></button>
+      <button data-f="visit">本周到店 <span id="n-visit">120</span></button>
+      <button data-f="low">低频未到店 <span id="n-low">80</span></button>
+      <button data-f="never">从未购买 <span id="n-never">80</span></button>
+      <button data-f="conflict">数据对不上 <span id="n-cf">40</span></button>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:88px">会员号</th>
+            <th style="width:126px">手机号</th>
+            <th style="width:74px">近 30 日</th>
+            <th style="width:70px">近 7 日</th>
+            <th style="width:80px">历史买过</th>
+            <th style="width:112px">分类</th>
+            <th style="width:70px">今天发券</th>
+            <th style="width:56px"></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <p class="muted" style="margin:12px 0 0">
+      分类按规则顺序判定，一人只落一类。「沉睡客 380」加上「数据对不上 40」，等于首页的 420。
+    </p>
+  </div>
+
+</div>
+
+<script src="data.js"></script>
+<script>
+var ALL = window.MEMBERS || [];
+
+function labelOf(m) {
+  if (m.c7 > m.c30) return '数据对不上';
+  if (!m.e) return '从未购买';
+  if (m.c30 >= 2) return '常购客';
+  if (m.c7 >= 1) return '本周到店客';
+  if (m.c30 === 1) return '低频未到店';
+  return '沉睡客';
+}
+
+function canSend(m) {
+  return m.e && m.c30 === 0 && m.c7 === 0 && !!m.p;
+}
+
+function labelTag(l) {
+  if (l === '沉睡客') return 'ok';
+  if (l === '数据对不上') return 'warn';
+  return '';
+}
+
+var counts = {};
+for (var i = 0; i < ALL.length; i++) {
+  var l = labelOf(ALL[i]);
+  counts[l] = (counts[l] || 0) + 1;
+}
+
+var nSend = ALL.filter(canSend).length;
+document.getElementById('n-all').textContent = ALL.length;
+document.getElementById('n-send').textContent = nSend;
+document.getElementById('n-freq').textContent = counts['常购客'] || 0;
+document.getElementById('n-sleep').textContent = counts['沉睡客'] || 0;
+document.getElementById('n-visit').textContent = counts['本周到店客'] || 0;
+document.getElementById('n-low').textContent = counts['低频未到店'] || 0;
+document.getElementById('n-never').textContent = counts['从未购买'] || 0;
+document.getElementById('n-cf').textContent = counts['数据对不上'] || 0;
+
+var filter = 'all';
+var kw = '';
+
+function matchFilter(m) {
+  var l = labelOf(m);
+  if (filter === 'all') return true;
+  if (filter === 'send') return canSend(m);
+  if (filter === 'freq') return l === '常购客';
+  if (filter === 'sleep') return l === '沉睡客';
+  if (filter === 'visit') return l === '本周到店客';
+  if (filter === 'low') return l === '低频未到店';
+  if (filter === 'never') return l === '从未购买';
+  if (filter === 'conflict') return l === '数据对不上';
+  return true;
+}
+
+function render() {
+  var out = [];
+  for (var i = 0; i < ALL.length; i++) {
+    var m = ALL[i];
+    if (!matchFilter(m)) continue;
+    if (kw && m.id.toLowerCase().indexOf(kw) < 0 && m.p.replace(/\*/g, '').indexOf(kw) < 0) continue;
+    var l = labelOf(m);
+    var ok = canSend(m);
+    out.push('<tr>' +
+      '<td>' + m.id + '</td>' +
+      '<td class="mid">' + (m.p || '<span style="color:#9a5b12">空</span>') + '</td>' +
+      '<td class="num">' + m.c30 + ' 次</td>' +
+      '<td class="num">' + m.c7 + ' 次</td>' +
+      '<td class="num">' + (m.e ? '是' : '否') + '</td>' +
+      '<td><span class="tag ' + labelTag(l) + '">' + l + '</span></td>' +
+      '<td>' + (ok ? '<span style="color:#0e6e5c;font-weight:600">✓</span>' : '<span class="muted">—</span>') + '</td>' +
+      '<td><a class="link" href="member.html?id=' + m.id + '">原因</a></td>' +
+      '</tr>');
+  }
+  document.getElementById('tbody').innerHTML = out.join('');
+  document.getElementById('shown').textContent = out.length;
+}
+
+document.getElementById('seg').addEventListener('click', function (e) {
+  var b = e.target.closest('button');
+  if (!b) return;
+  var btns = this.querySelectorAll('button');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('on');
+  b.classList.add('on');
+  filter = b.getAttribute('data-f');
+  render();
+});
+
+document.getElementById('q').addEventListener('input', function () {
+  kw = this.value.trim().toUpperCase();
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

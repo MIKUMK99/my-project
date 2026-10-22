@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>邻里券 · 三个数是怎么来的</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .stage { margin-bottom: 26px; }
+  .stage-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .stage-num {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .stage-name { font-size: 14px; color: var(--ink2); }
+  .stage-drop { margin-left: auto; font-size: 12px; color: var(--ink3); }
+  .track {
+    height: 34px;
+    background: #f2f2ee;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .fill {
+    height: 100%;
+    background: #cfe3dd;
+    border-radius: 6px;
+  }
+  .fill.last { background: var(--accent); }
+  .fill.mid { background: #9dc6ba; }
+  .note {
+    font-size: 12px;
+    color: var(--ink3);
+    margin-top: 8px;
+  }
+  .eq {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #fafaf8;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+  .eq b { font-size: 17px; }
+  .eq .op { color: var(--ink3); }
+  .eq .res { color: var(--accent); font-weight: 600; font-size: 20px; }
+  .barrow {
+    display: grid;
+    grid-template-columns: 96px 1fr 56px;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  .barrow .nm { color: var(--ink2); font-size: 13px; }
+  .barrow .b {
+    height: 22px;
+    background: #d9e8e3;
+    border-radius: 4px;
+  }
+  .barrow .v {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink2);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="index.html"><span></span>邻里券</a>
+    <div class="topbar-meta">
+      <span>统计日 <span data-stat-date>2026-10-20</span></span>
+      <span>口径示意 · 不是产品页面</span>
+      <span>口径说明</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <a class="back" href="index.html">← 返回首页</a>
+
+  <h1>三个数是怎么来的</h1>
+  <p class="muted" style="margin:2px 0 0">
+    这一页是给看作品的人准备的，不放进产品里。它只回答一件事：1,000、420、334 是不是算出来的。
+  </p>
+
+  <div class="card" style="margin-top:22px">
+    <h2>一层层筛下来</h2>
+
+    <div class="stage">
+      <div class="stage-head">
+        <span class="stage-num">1,000</span>
+        <span class="stage-name">全部会员</span>
+      </div>
+      <div class="track"><div class="fill" style="width:100%"></div></div>
+      <div class="note">会员表全部记录</div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-head">
+        <span class="stage-num">920</span>
+        <span class="stage-name">以前买过</span>
+        <span class="stage-drop">− 80 从未购买</span>
+      </div>
+      <div class="track"><div class="fill" style="width:92%"></div></div>
+      <div class="note">从没买过的人不是「沉睡」，是「还没醒过」。沉睡客的前提是以前至少买过 1 次。</div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-head">
+        <span class="stage-num">420</span>
+        <span class="stage-name">沉睡客</span>
+        <span class="stage-drop">− 500 近 30 日买过</span>
+      </div>
+      <div class="track"><div class="fill mid" style="width:42%"></div></div>
+      <div class="note">以前买过，但近 30 日一次没买。这是首页上那个 420。</div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-head">
+        <span class="stage-num" style="color:#0e6e5c">334</span>
+        <span class="stage-name">今天可以发送</span>
+        <span class="stage-drop">− 86 发不出去 / 数据对不上</span>
+      </div>
+      <div class="track"><div class="fill last" style="width:33.4%"></div></div>
+      <div class="note">能发、该发的人。这 334 人构成确认发送页上的那份名单。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>420 到 334 之间，那 86 个人</h2>
+    <div class="eq">
+      <b>420</b>
+      <span class="op">−</span>
+      <span>56 无手机号</span>
+      <span class="op">−</span>
+      <span>40 数据对不上</span>
+      <span class="op">+</span>
+      <span>10 两边都占</span>
+      <span class="op">=</span>
+      <span class="res">334</span>
+    </div>
+    <p class="muted" style="margin:14px 0 0">
+      那 10 个人同时满足「没有手机号」和「两个次数对不上」，直接相减会被减两次。
+      这行加减法必须写在名单页上，否则她一定会问「86 个人去哪了」。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>1,000 人分成六类（互斥）</h2>
+
+    <div class="barrow"><div class="nm">沉睡客</div><div class="b" style="width:100%"></div><div class="v">380</div></div>
+    <div class="barrow"><div class="nm">常购客</div><div class="b" style="width:78.9%"></div><div class="v">300</div></div>
+    <div class="barrow"><div class="nm">本周到店客</div><div class="b" style="width:31.6%"></div><div class="v">120</div></div>
+    <div class="barrow"><div class="nm">低频未到店</div><div class="b" style="width:21.1%"></div><div class="v">80</div></div>
+    <div class="barrow"><div class="nm">从未购买</div><div class="b" style="width:21.1%"></div><div class="v">80</div></div>
+    <div class="barrow"><div class="nm">数据对不上</div><div class="b" style="width:10.5%"></div><div class="v">40</div></div>
+
+    <p class="muted" style="margin:18px 0 0">
+      这里的「沉睡客 380」加上「数据对不上 40」，才是上面那个 420。
+      那 40 人近 30 日购买也是 0，但近 7 日反而大于近 30 日，所以单独列出来，不进发送名单。
+    </p>
+  </div>
+
+  <p class="muted" style="margin-top:18px">
+    同样的三个数可以用三种方式算出来：Excel 筛选、<a class="link" href="../sql/metrics.sql">sql/metrics.sql</a>、
+    <a class="link" href="../scripts/run_sql.py">scripts/run_sql.py</a>。三处结果一致，才算数。
+  </p>
+</div>
+<script src="data.js"></script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>邻里券 · 发送记录</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="index.html"><span></span>邻里券</a>
+    <nav class="nav">
+      <a href="index.html">发券</a>
+      <a href="all.html">会员</a>
+      <a href="sleepers.html">沉睡客</a>
+      <a class="on" href="records.html">发送记录</a>
+    </nav>
+    <div class="topbar-meta">
+      <span>统计日 <span data-stat-date>2026-10-20</span></span>
+      <span>王姐</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="toolbar">
+    <div>
+      <div class="ptitle">发送记录</div>
+      <div class="psub">每发出一期，自动留一条记录</div>
+    </div>
+    <div class="spacer"></div>
+    <a class="btn ghost" href="confirm.html">发送名单</a>
+  </div>
+
+  <div class="card" style="margin-top:0">
+    <div class="row" style="margin-bottom:16px">
+      <div>
+        <div style="font-size:15px;font-weight:600">
+          B20261020
+          <span class="tag ok" style="margin-left:8px">已发送</span>
+        </div>
+        <div class="muted" style="margin-top:4px">2026-10-20 15:42 · 满 99 减 20 · 短信 · 操作人 王姐</div>
+      </div>
+    </div>
+
+    <div class="mini" style="gap:32px">
+      <div>计划发送 <b id="m-plan">334</b> 人</div>
+      <div>实际发送 <b id="m-sent">334</b> 人</div>
+      <div>发送前排除 <b>0</b> 人</div>
+      <div>效果指标 <b class="muted" style="font-weight:400">未接入</b></div>
+    </div>
+
+    <p class="muted" style="margin:14px 0 0">
+      效果要看两个数：送达率、7 日回店率。本期未接入——送达率要等短信网关回执，7 日回店率要等订单回流，都在下一期做。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>发送明细 <span class="muted" style="font-weight:400">共 <span id="c-rows">334</span> 人</span></h2>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:96px">会员号</th>
+            <th style="width:140px">手机号</th>
+            <th>券</th>
+            <th style="width:150px">发送时间</th>
+            <th style="width:96px">状态</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script src="data.js"></script>
+<script>
+var rows = (window.MEMBERS || []).filter(function (m) {
+  return m.e && m.c30 === 0 && m.c7 === 0 && !!m.p;
+});
+
+var html = '';
+for (var i = 0; i < rows.length; i++) {
+  var m = rows[i];
+  html += '<tr>' +
+    '<td>' + m.id + '</td>' +
+    '<td class="mid">' + m.p + '</td>' +
+    '<td class="muted">满 99 减 20</td>' +
+    '<td class="num">2026-10-20 15:42</td>' +
+    '<td><span class="tag ok">已提交</span></td>' +
+    '</tr>';
+}
+document.getElementById('tbody').innerHTML = html;
+
+document.getElementById('m-plan').textContent = rows.length;
+document.getElementById('m-sent').textContent = rows.length;
+document.getElementById('c-rows').textContent = rows.length;
+</script>
+</body>
+</html>

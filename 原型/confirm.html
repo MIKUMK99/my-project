@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>邻里券 · 发送名单</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="index.html"><span></span>邻里券</a>
+    <nav class="nav">
+      <a class="on" href="index.html">发券</a>
+      <a href="all.html">会员</a>
+      <a href="sleepers.html">沉睡客</a>
+      <a href="records.html">发送记录</a>
+    </nav>
+    <div class="topbar-meta">
+      <span>统计日 <span data-stat-date>2026-10-20</span></span>
+      <span>王姐</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="toolbar">
+    <div>
+      <div class="ptitle">发送名单</div>
+      <div class="psub">满 99 减 20 · 短信 · 共 <span id="head-count">334</span> 人</div>
+    </div>
+    <div class="spacer"></div>
+    <a class="btn ghost" href="sleepers.html">全部沉睡客 420</a>
+  </div>
+
+  <div class="card" style="margin-top:0">
+    <div class="row" style="margin-bottom:14px">
+      <div class="mini" style="gap:18px">
+        <div>沉睡客 <b>420</b></div>
+        <div>− 无手机号 <b>56</b></div>
+        <div>− 数据对不上 <b>40</b></div>
+        <div>+ 重复扣减 <b>10</b></div>
+        <div>= 可发送 <b style="color:#0e6e5c" id="sum">334</b></div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn ghost" id="all">全选</button>
+      <button class="btn ghost" id="none">取消全选</button>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:44px"></th>
+            <th>会员号</th>
+            <th>手机号</th>
+            <th>近 30 日</th>
+            <th>近 7 日</th>
+            <th>状态</th>
+            <th style="width:64px"></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="footbar" style="border-top:1px solid #e4e4df;margin-top:16px;padding-top:16px">
+      <div class="count">已选 <span id="sel">0</span> 人</div>
+      <div class="muted">已排除 <span id="exc">0</span> 人</div>
+      <div class="spacer"></div>
+      <span class="muted">确认后立即发送，不可撤回</span>
+      <button class="btn" id="send">确认发送「满 99 减 20」</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-title">确认发送</div>
+    <div class="modal-body">
+      <div class="kv"><span>券</span><b>满 99 减 20</b></div>
+      <div class="kv"><span>渠道</span><b>短信</b></div>
+      <div class="kv"><span>人数</span><b><span id="m-count">334</span> 人</b></div>
+      <div class="kv"><span>操作人</span><b>王姐</b></div>
+      <div class="warn">发送后不可撤回。请确认人数无误，再点确认。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="cancel">取消</button>
+      <button class="btn" id="ok">确认发送</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script>
+var rows = (window.MEMBERS || []).filter(function (m) {
+  return m.e && m.c30 === 0 && m.c7 === 0 && !!m.p;
+});
+
+var html = '';
+for (var i = 0; i < rows.length; i++) {
+  var m = rows[i];
+  html += '<tr>' +
+    '<td><input type="checkbox" class="pick" checked></td>' +
+    '<td>' + m.id + '</td>' +
+    '<td class="mid">' + m.p + '</td>' +
+    '<td class="num">' + m.c30 + ' 次</td>' +
+    '<td class="num">' + m.c7 + ' 次</td>' +
+    '<td><span class="tag ok">沉睡客</span></td>' +
+    '<td><a class="link" href="member.html?id=' + m.id + '">原因</a></td>' +
+    '</tr>';
+}
+document.getElementById('tbody').innerHTML = html;
+
+var total = rows.length;
+document.getElementById('head-count').textContent = total;
+document.getElementById('sum').textContent = total;
+
+var boxes = document.querySelectorAll('.pick');
+var sel = document.getElementById('sel');
+var exc = document.getElementById('exc');
+
+function refresh() {
+  var n = 0;
+  for (var i = 0; i < boxes.length; i++) if (boxes[i].checked) n++;
+  sel.textContent = n;
+  exc.textContent = total - n;
+}
+
+for (var i = 0; i < boxes.length; i++) {
+  boxes[i].addEventListener('change', refresh);
+}
+
+document.getElementById('all').addEventListener('click', function () {
+  for (var i = 0; i < boxes.length; i++) boxes[i].checked = true;
+  refresh();
+});
+
+document.getElementById('none').addEventListener('click', function () {
+  for (var i = 0; i < boxes.length; i++) boxes[i].checked = false;
+  refresh();
+});
+
+var overlay = document.getElementById('overlay');
+var mCount = document.getElementById('m-count');
+var sendBtn = document.getElementById('send');
+
+function openModal() {
+  mCount.textContent = sel.textContent;
+  overlay.classList.add('show');
+}
+
+function closeModal() {
+  overlay.classList.remove('show');
+}
+
+sendBtn.addEventListener('click', openModal);
+document.getElementById('cancel').addEventListener('click', closeModal);
+
+overlay.addEventListener('click', function (e) {
+  if (e.target === overlay) closeModal();
+});
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+document.getElementById('ok').addEventListener('click', function () {
+  var n = parseInt(mCount.textContent, 10);
+  closeModal();
+
+  var t = document.getElementById('toast');
+  t.textContent = '已向 ' + n + ' 人发送「满 99 减 20」';
+  t.classList.add('show');
+
+  var a = document.createElement('a');
+  a.className = 'btn';
+  a.href = 'records.html';
+  a.textContent = '查看发送记录 →';
+  sendBtn.parentNode.replaceChild(a, sendBtn);
+
+  setTimeout(function () { t.classList.remove('show'); }, 3200);
+});
+
+refresh();
+</script>
+</body>
+</html>

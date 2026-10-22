@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>邻里券 · 沉睡客</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="index.html"><span></span>邻里券</a>
+    <nav class="nav">
+      <a href="index.html">发券</a>
+      <a href="all.html">会员</a>
+      <a class="on" href="sleepers.html">沉睡客</a>
+      <a href="records.html">发送记录</a>
+    </nav>
+    <div class="topbar-meta">
+      <span>统计日 <span data-stat-date>2026-10-20</span></span>
+      <span>王姐</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="toolbar">
+    <div>
+      <div class="ptitle">沉睡客</div>
+      <div class="psub">共 <span id="total">420</span> 人 · 本期可发送 <span id="sub-send">334</span> 人</div>
+    </div>
+    <div class="spacer"></div>
+    <a class="btn ghost" href="all.html">全部会员</a>
+    <a class="btn" href="confirm.html">发送名单</a>
+  </div>
+
+  <div class="card" style="margin-top:0">
+    <div class="mini" style="gap:20px;margin-bottom:4px">
+      <div>沉睡客 <b id="c-all">420</b></div>
+      <div>− 无手机号 <b id="c-np">56</b></div>
+      <div>− 数据对不上 <b id="c-cf">40</b></div>
+      <div>+ 两者都占 <b id="c-both">10</b></div>
+      <div>= 可发送 <b id="c-send" style="color:#0e6e5c">334</b></div>
+    </div>
+
+    <div class="seg" id="seg">
+      <button class="on" data-f="all">全部 <span id="n-all">420</span></button>
+      <button data-f="send">可发送 <span id="n-send">334</span></button>
+      <button data-f="nophone">无手机号 <span id="n-np">56</span></button>
+      <button data-f="conflict">数据对不上 <span id="n-cf">40</span></button>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:90px">会员号</th>
+            <th style="width:130px">手机号</th>
+            <th style="width:80px">近 30 日</th>
+            <th style="width:80px">近 7 日</th>
+            <th style="width:90px">结论</th>
+            <th>原因</th>
+            <th style="width:64px"></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <p class="muted" style="margin:12px 0 0">
+      显示 <span id="shown">420</span> 行。可发送的 334 人才会进入
+      <a class="link" href="confirm.html">发送名单</a>。
+    </p>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+var ALL = (window.MEMBERS || []).filter(function (m) { return m.e && m.c30 === 0; });
+var noPhone = function (m) { return !m.p; };
+var conflict = function (m) { return m.c7 > m.c30; };
+var sendable = function (m) { return !noPhone(m) && !conflict(m); };
+
+var nAll = ALL.length;
+var nSend = ALL.filter(sendable).length;
+var nNp = ALL.filter(noPhone).length;
+var nCf = ALL.filter(conflict).length;
+var nBoth = ALL.filter(function (m) { return noPhone(m) && conflict(m); }).length;
+
+document.getElementById('total').textContent = nAll;
+document.getElementById('sub-send').textContent = nSend;
+document.getElementById('c-all').textContent = nAll;
+document.getElementById('c-np').textContent = nNp;
+document.getElementById('c-cf').textContent = nCf;
+document.getElementById('c-both').textContent = nBoth;
+document.getElementById('c-send').textContent = nSend;
+document.getElementById('n-all').textContent = nAll;
+document.getElementById('n-send').textContent = nSend;
+document.getElementById('n-np').textContent = nNp;
+document.getElementById('n-cf').textContent = nCf;
+
+var filter = 'all';
+
+function reasonOf(m) {
+  var a = noPhone(m), b = conflict(m);
+  if (a && b) return '没有手机号，而且两个次数对不上';
+  if (a) return '档案里没有手机号，短信发不出去';
+  if (b) return '近 7 日次数大于近 30 日，数据对不上';
+  return '—';
+}
+
+function render() {
+  var rows = ALL.filter(function (m) {
+    if (filter === 'send') return sendable(m);
+    if (filter === 'nophone') return noPhone(m);
+    if (filter === 'conflict') return conflict(m);
+    return true;
+  });
+
+  var html = '';
+  for (var i = 0; i < rows.length; i++) {
+    var m = rows[i];
+    var ok = sendable(m);
+    html += '<tr>' +
+      '<td>' + m.id + '</td>' +
+      '<td class="mid">' + (m.p || '<span style="color:#9a5b12">空</span>') + '</td>' +
+      '<td class="num">' + m.c30 + ' 次</td>' +
+      '<td class="num">' + m.c7 + ' 次</td>' +
+      '<td><span class="tag ' + (ok ? 'ok' : 'warn') + '">' + (ok ? '可发送' : '不发') + '</span></td>' +
+      '<td class="muted">' + reasonOf(m) + '</td>' +
+      '<td><a class="link" href="member.html?id=' + m.id + '">原因</a></td>' +
+      '</tr>';
+  }
+  document.getElementById('tbody').innerHTML = html;
+  document.getElementById('shown').textContent = rows.length;
+}
+
+document.getElementById('seg').addEventListener('click', function (e) {
+  var b = e.target.closest('button');
+  if (!b) return;
+  var btns = this.querySelectorAll('button');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('on');
+  b.classList.add('on');
+  filter = b.getAttribute('data-f');
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
